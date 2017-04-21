@@ -1,2 +1,4 @@
-<div id="messages"></div>
-<input id="chat-input" type="text"></input>
+<div class="container>">
+  <div id="messages"></div>
+  <textarea id="chat-input" cols="40" rows="5"></textarea>
+</div>
