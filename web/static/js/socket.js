@@ -56,22 +56,61 @@ socket.connect()
 let channel           = socket.channel("room:lobby", {})
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
+let date = new Date()
 
 chatInput.addEventListener("keypress", event => {
   if(event.keyCode === 13){
     event.preventDefault();
-    console.log(channel)
     channel.push("new_msg", {body: chatInput.value})
     chatInput.value = ""
   }
 })
 
 channel.on("new_msg", payload => {
-  let messageItem = document.createElement("li");
-  messageItem.innerText = `[${Date()}] ${payload.body}`
+
+  let date = new Date()
+  let messageItem = document.createElement("div");
+  let messagePara = document.createElement("p");
+  let messageBtn = document.createElement("button")
+  messageItem.setAttribute('id', date.getTime())
+  messagePara.innerText = ` [${date.toLocaleTimeString()} ] ${payload.body}`
+  messageBtn.innerText = 'Answer Me!'
+
+
+  messageBtn.addEventListener("click", event => {
+    let answerInput = document.createElement("input")
+    answerInput.setAttribute('class', 'answer')
+
+    answerInput.addEventListener("keypress", event => {
+      if(event.keyCode === 13){
+        event.preventDefault();
+        channel.push("new_answer", {body: answerInput.value, id: event.target.parentElement.id})
+        answerInput.remove(answerInput)
+      }
+    })
+    messageItem.appendChild(answerInput)
+    answerInput.focus()
+  })
+
   messagesContainer.appendChild(messageItem)
+  messageItem.appendChild(messagePara)
+  messageItem.appendChild(messageBtn)
+
 })
 
+channel.on("new_answer", payload => {
+  let date = new Date()
+  let messageItem = document.getElementById(payload.id)
+  let answerPara = document.createElement("p")
+  let answerInput = document.getElementsByTagName('input')
+
+  let answerContainer = document.createElement("div")
+  answerContainer.setAttribute('class', 'answer')
+
+  answerPara.innerText = ` [${date.toLocaleTimeString()} ] ${payload.body}`
+  messageItem.appendChild(answerContainer)
+  answerContainer.appendChild(answerPara)
+})
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
