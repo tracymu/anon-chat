@@ -54,6 +54,7 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 
 let channel           = socket.channel("room:lobby", {})
+// socket.channel("blau" + videoid)
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 let date = new Date()
@@ -73,6 +74,7 @@ channel.on("new_msg", payload => {
   let messagePara = document.createElement("p");
   let messageBtn = document.createElement("button")
   messageItem.setAttribute('id', date.getTime())
+  messageItem.setAttribute('class', 'question')
   messagePara.innerText = ` [${date.toLocaleTimeString()} ] ${payload.body}`
   messageBtn.innerText = 'Answer Me!'
 

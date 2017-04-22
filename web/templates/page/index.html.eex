@@ -1,4 +1,5 @@
 <div class="container>">
+  <h1>Ask Anything</h1>
   <div id="messages"></div>
   <textarea id="chat-input" cols="40" rows="5"></textarea>
 </div>

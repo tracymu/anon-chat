@@ -13,6 +13,11 @@ defmodule AnonChat.RoomChannel do
     {:noreply, socket}
   end
 
+  def handle_in("new_answer", %{"body" => body, "id" => id}, socket) do
+    broadcast! socket, "new_answer", %{body: body, id: id}
+    {:noreply, socket}
+  end  
+
   def handle_out("new_msg", payload, socket) do
     push socket, "new_msg", payload
     {:noreply, socket}
