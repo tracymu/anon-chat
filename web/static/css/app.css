@@ -1,1 +1,20 @@
-/* This file is for your main application css. */
+
+#chat-input {
+  background-color:lavenderblush;
+  margin-top: 30px;
+}
+/* Custom page header */
+
+.answer {
+  background-color: aliceblue;
+  margin-left: 25px;
+}
+
+.question {
+  padding-top:25px;
+}
+
+.question > p:first-child {
+    color: darkcyan;
+    font-weight: bold;
+}
