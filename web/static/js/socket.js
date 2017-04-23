@@ -59,33 +59,40 @@ let messagesContainer = document.querySelector("#messages")
 let date = new Date()
 
 chatInput.addEventListener("keypress", event => {
+
   if(event.keyCode === 13){
+      let date = new Date()
+
+  let timeStamp = date.toLocaleTimeString()
     event.preventDefault();
-    channel.push("new_msg", {body: chatInput.value})
+    channel.push("new_msg", {body: chatInput.value,
+                             id: date.getTime(),
+                             timestamp: timeStamp })
     chatInput.value = ""
   }
 })
 
 channel.on("new_msg", payload => {
-
-  let date = new Date()
   let messageItem = document.createElement("div");
   let messagePara = document.createElement("p");
   let messageBtn = document.createElement("button")
-  messageItem.setAttribute('id', date.getTime())
+  messageItem.setAttribute('id', payload.id)
   messageItem.setAttribute('class', 'question')
-  messagePara.innerText = ` [${date.toLocaleTimeString()} ] ${payload.body}`
+  messagePara.innerText = ` [${payload.timestamp} ] ${payload.body}`
   messageBtn.innerText = 'Answer Me!'
 
 
   messageBtn.addEventListener("click", event => {
     let answerInput = document.createElement("input")
+    let timeStamp = date.toLocaleTimeString()
     answerInput.setAttribute('class', 'answer')
 
     answerInput.addEventListener("keypress", event => {
       if(event.keyCode === 13){
         event.preventDefault();
-        channel.push("new_answer", {body: answerInput.value, id: event.target.parentElement.id})
+        channel.push("new_answer", {body: answerInput.value, 
+                                    id: event.target.parentElement.id,
+                                    timestamp: timeStamp })
         answerInput.remove(answerInput)
       }
     })
@@ -101,9 +108,9 @@ channel.on("new_msg", payload => {
 
 channel.on("new_answer", payload => {
   let date = new Date()
+  let timeStamp = date.toLocaleTimeString()
   let messageItem = document.getElementById(payload.id)
   let answerPara = document.createElement("p")
-  let answerInput = document.getElementsByTagName('input')
 
   let answerContainer = document.createElement("div")
   answerContainer.setAttribute('class', 'answer')
@@ -117,19 +124,55 @@ channel.on("load_history", payload => {
   let messages = payload.history.chat_history
   let i 
 
-  for ( i=0; i < messages.length; i++) {
-    let messageItem = document.createElement("div");
-    let messagePara = document.createElement("p");
-    let messageBtn = document.createElement("button")
-    messageItem.setAttribute('id', date.getTime())
-    messageItem.setAttribute('class', 'question')
-    messagePara.innerText = messages[i].body
-    messageBtn.innerText = 'Answer Me!'
-    messagesContainer.appendChild(messageItem)
-    messageItem.appendChild(messagePara)
-    messageItem.appendChild(messageBtn)
-  }
+// set questions
+  for ( i=(messages.length - 1); i > -1; i-- ){
+    if(!messages[i].hasOwnProperty("answer")){
+      let messageItem = document.createElement("div");
+      let messagePara = document.createElement("p");
+      let messageBtn = document.createElement("button")
+      messageItem.setAttribute('id', messages[i].id)
+      messageItem.setAttribute('class', 'question')
+      messagePara.innerText = `[${messages[i].timestamp} ] ${messages[i].body} `
+      messageBtn.innerText = 'Answer Me!'
 
+      messageBtn.addEventListener("click", event => {
+        let date = new Date()
+        let timeStamp = date.toLocaleTimeString()
+        let answerInput = document.createElement("input")
+        answerInput.setAttribute('class', 'answer')
+
+        answerInput.addEventListener("keypress", event => {
+          if(event.keyCode === 13){
+            event.preventDefault();
+            channel.push("new_answer", {body: answerInput.value, 
+                                        id: event.target.parentElement.id,
+                                        timestamp: timeStamp })
+            answerInput.remove(answerInput)
+          }
+        })
+        messageItem.appendChild(answerInput)
+        answerInput.focus()
+      })
+      messagesContainer.appendChild(messageItem)
+      messageItem.appendChild(messagePara)
+      messageItem.appendChild(messageBtn)
+    }
+  }
+// set answers
+  for ( i=(messages.length - 1); i > -1; i-- ) {
+    if(messages[i].hasOwnProperty("answer")){
+      debugger
+      let messageItem = document.getElementById(messages[i].id)
+      let answerPara = document.createElement("p")
+
+      let answerContainer = document.createElement("div")
+      answerContainer.setAttribute('class', 'answer')
+
+      answerPara.innerText = ` [${messages[i].timestamp} ] ${messages[i].body}`
+      messageItem.appendChild(answerContainer)
+      answerContainer.appendChild(answerPara)  
+    }
+  }
 })
 
 channel.join()

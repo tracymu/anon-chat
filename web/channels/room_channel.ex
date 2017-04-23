@@ -12,15 +12,15 @@ defmodule AnonChat.RoomChannel do
     {:ok, assign(socket, :room_id, String.to_integer(room_id))}
   end
 
-  def handle_in("new_msg", %{"body" => body}, socket) do
-    ChatHistory.add_message(%{body: body}) #could put room name in herei f wanted
-    broadcast! socket, "new_msg", %{body: body}
+  def handle_in("new_msg", %{"body" => body, "id" => id, "timestamp" => timestamp}, socket) do
+    ChatHistory.add_message(%{body: body, id: id, timestamp: timestamp }) #could put room name in herei f wanted
+    broadcast! socket, "new_msg", %{body: body, id: id, timestamp: timestamp}
     {:noreply, socket}
   end
 
-  def handle_in("new_answer", %{"body" => body, "id" => id}, socket) do
-    ChatHistory.add_message(%{body: body, id: id}) #could put room name in herei f wanted
-    broadcast! socket, "new_answer", %{body: body, id: id}
+  def handle_in("new_answer", %{"body" => body, "id" => id, "timestamp" => timestamp}, socket) do
+    ChatHistory.add_message(%{body: body, id: id, timestamp: timestamp, answer: true}) #could put room name in herei f wanted
+    broadcast! socket, "new_answer", %{body: body, id: id, timestamp: timestamp, answer: true}
     {:noreply, socket}
   end  
 
