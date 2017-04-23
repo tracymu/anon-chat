@@ -59,11 +59,9 @@ let messagesContainer = document.querySelector("#messages")
 let date = new Date()
 
 chatInput.addEventListener("keypress", event => {
-
-  if(event.keyCode === 13){
-      let date = new Date()
-
+  let date = new Date()
   let timeStamp = date.toLocaleTimeString()
+  if(event.keyCode === 13){
     event.preventDefault();
     channel.push("new_msg", {body: chatInput.value,
                              id: date.getTime(),
@@ -84,10 +82,11 @@ channel.on("new_msg", payload => {
 
   messageBtn.addEventListener("click", event => {
     let answerInput = document.createElement("input")
-    let timeStamp = date.toLocaleTimeString()
     answerInput.setAttribute('class', 'answer')
 
     answerInput.addEventListener("keypress", event => {
+      let date = new Date()
+      let timeStamp = date.toLocaleTimeString()      
       if(event.keyCode === 13){
         event.preventDefault();
         channel.push("new_answer", {body: answerInput.value, 
@@ -161,13 +160,11 @@ channel.on("load_history", payload => {
 // set answers
   for ( i=(messages.length - 1); i > -1; i-- ) {
     if(messages[i].hasOwnProperty("answer")){
-      debugger
       let messageItem = document.getElementById(messages[i].id)
       let answerPara = document.createElement("p")
 
       let answerContainer = document.createElement("div")
       answerContainer.setAttribute('class', 'answer')
-
       answerPara.innerText = ` [${messages[i].timestamp} ] ${messages[i].body}`
       messageItem.appendChild(answerContainer)
       answerContainer.appendChild(answerPara)  
