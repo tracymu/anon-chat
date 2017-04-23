@@ -3,6 +3,8 @@ defmodule AnonChat.RoomChannel do
   alias AnonChat.ChatHistory
 
   def join("room:lobby", _message, socket) do
+    send(self, :load_history)
+
     {:ok, socket}
   end
 
@@ -11,6 +13,7 @@ defmodule AnonChat.RoomChannel do
   end
 
   def handle_in("new_msg", %{"body" => body}, socket) do
+    ChatHistory.add_message(%{body: body}) #could put room name in herei f wanted
     broadcast! socket, "new_msg", %{body: body}
     {:noreply, socket}
   end
@@ -23,6 +26,12 @@ defmodule AnonChat.RoomChannel do
 
   def handle_out("new_msg", payload, socket) do
     push socket, "new_msg", payload
+    {:noreply, socket}
+  end
+
+  def handle_info(:load_history, socket) do
+    history = ChatHistory.load_messages
+    push socket, "load_history", %{history: history}
     {:noreply, socket}
   end
 end

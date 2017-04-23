@@ -5,8 +5,8 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
-let socket = new Socket("/socket", {params: {token: window.userToken}})
-
+let socket = new Socket("/socket", {params: {token: window.userToken}, 
+               logger: ((kind, msg, data) => { console.log(`${kind}: ${msg}`, data) })})
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
 // which authenticates the session and assigns a `:current_user`.
@@ -54,7 +54,6 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 
 let channel           = socket.channel("room:lobby", {})
-// socket.channel("blau" + videoid)
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 let date = new Date()
@@ -113,8 +112,29 @@ channel.on("new_answer", payload => {
   messageItem.appendChild(answerContainer)
   answerContainer.appendChild(answerPara)
 })
+
+channel.on("load_history", payload => {
+  let messages = payload.history.chat_history
+  let i 
+
+  for ( i=0; i < messages.length; i++) {
+    let messageItem = document.createElement("div");
+    let messagePara = document.createElement("p");
+    let messageBtn = document.createElement("button")
+    messageItem.setAttribute('id', date.getTime())
+    messageItem.setAttribute('class', 'question')
+    messagePara.innerText = messages[i].body
+    messageBtn.innerText = 'Answer Me!'
+    messagesContainer.appendChild(messageItem)
+    messageItem.appendChild(messagePara)
+    messageItem.appendChild(messageBtn)
+  }
+
+})
+
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
+
 
 export default socket
