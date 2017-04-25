@@ -17,7 +17,7 @@ defmodule AnonChat.ChatHistory do
     end
   end
 
-  def load_messages do
+  def load_messages(name \\ @name) do
     Agent.get name, fn state ->
       state
     end
